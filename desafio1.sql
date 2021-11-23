@@ -1,115 +1,55 @@
-CREATE SCHEMA IF NOT EXISTS `SpotifyClone` 
+DROP SCHEMA IF EXISTS SpotifyClone;
+CREATE SCHEMA SpotifyClone;
+USE SpotifyClone;
 
--- -----------------------------------------------------
--- Table `SpotifyClone`.`artista`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SpotifyClone`.`artista` (
-  `artista_id` INT NOT NULL AUTO_INCREMENT,
-  `artista_nome` VARCHAR(50) NOT NULL,
-  PRIMARY KEY (`artista_id`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 5
+CREATE TABLE plano(
+	plano_id INT PRIMARY KEY AUTO_INCREMENT,
+    plano_nome VARCHAR(50) NOT NULL,
+    plano_valor DECIMAL(10,2) NOT NULL -- precisão e escala
+) engine=InnoDB;
 
+CREATE TABLE usuario(
+	usuario_id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_nome VARCHAR(50) NOT NULL,
+    usuario_idade INT NOT NULL,
+    plano_id INT NOT NULL,
+    FOREIGN KEY (plano_id) REFERENCES plano(plano_id)
+) engine=InnoDB;
 
+CREATE TABLE artista(
+	artista_id INT PRIMARY KEY AUTO_INCREMENT,
+    artista_nome VARCHAR(50) NOT NULL
+) engine=InnoDB;
 
--- -----------------------------------------------------
--- Table `SpotifyClone`.`album`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SpotifyClone`.`album` (
-  `album_id` INT NOT NULL AUTO_INCREMENT,
-  `album_nome` VARCHAR(50) NOT NULL,
-  `artista_id` INT NOT NULL,
-  PRIMARY KEY (`album_id`),
-  INDEX `artista_id` (`artista_id` ASC) VISIBLE,
-  CONSTRAINT `album_ibfk_1`
-    FOREIGN KEY (`artista_id`)
-    REFERENCES `SpotifyClone`.`artista` (`artista_id`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 6
+CREATE TABLE album(
+	album_id INT PRIMARY KEY AUTO_INCREMENT,
+    album_nome VARCHAR(50) NOT NULL,
+    artista_id INT NOT NULL,
+    FOREIGN KEY (artista_id) REFERENCES artista(artista_id)
+) engine=InnoDB;
 
+CREATE TABLE cancao(
+	cancao_id INT PRIMARY KEY AUTO_INCREMENT,
+    cancao_nome VARCHAR(50) NOT NULL,
+    album_id INT NOT NULL,
+    FOREIGN KEY (album_id) REFERENCES album(album_id)
+) engine=InnoDB;
 
+CREATE TABLE reproducoes_por_usuario(
+	usuario_id INT NOT NULL,
+    cancao_id INT NOT NULL,
+    CONSTRAINT PRIMARY KEY (usuario_id, cancao_id),
+    FOREIGN KEY (usuario_id) REFERENCES usuario(usuario_id),
+    FOREIGN KEY (cancao_id) REFERENCES cancao(cancao_id)
+) engine=InnoDB;
 
--- -----------------------------------------------------
--- Table `SpotifyClone`.`cancao`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SpotifyClone`.`cancao` (
-  `cancao_id` INT NOT NULL AUTO_INCREMENT,
-  `cancao_nome` VARCHAR(50) NOT NULL,
-  `album_id` INT NOT NULL,
-  PRIMARY KEY (`cancao_id`),
-  INDEX `album_id` (`album_id` ASC) VISIBLE,
-  CONSTRAINT `cancao_ibfk_1`
-    FOREIGN KEY (`album_id`)
-    REFERENCES `SpotifyClone`.`album` (`album_id`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 19
-
-
-
--- -----------------------------------------------------
--- Table `SpotifyClone`.`plano`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SpotifyClone`.`plano` (
-  `plano_id` INT NOT NULL AUTO_INCREMENT,
-  `plano_nome` VARCHAR(50) NOT NULL,
-  `plano_valor` DECIMAL(10,2) NOT NULL,
-  PRIMARY KEY (`plano_id`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 4
-
-
-
--- -----------------------------------------------------
--- Table `SpotifyClone`.`usuario`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SpotifyClone`.`usuario` (
-  `usuario_id` INT NOT NULL AUTO_INCREMENT,
-  `usuario_nome` VARCHAR(50) NOT NULL,
-  `usuario_idade` INT NOT NULL,
-  `plano_id` INT NOT NULL,
-  PRIMARY KEY (`usuario_id`),
-  INDEX `plano_id` (`plano_id` ASC) VISIBLE,
-  CONSTRAINT `usuario_ibfk_1`
-    FOREIGN KEY (`plano_id`)
-    REFERENCES `SpotifyClone`.`plano` (`plano_id`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 5
-
-
-
--- -----------------------------------------------------
--- Table `SpotifyClone`.`historico_de_seguidores`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SpotifyClone`.`historico_de_seguidores` (
-  `usuario_id` INT NOT NULL,
-  `artista_id` INT NOT NULL,
-  PRIMARY KEY (`usuario_id`, `artista_id`),
-  INDEX `artista_id` (`artista_id` ASC) VISIBLE,
-  CONSTRAINT `historico_de_seguidores_ibfk_1`
-    FOREIGN KEY (`usuario_id`)
-    REFERENCES `SpotifyClone`.`usuario` (`usuario_id`),
-  CONSTRAINT `historico_de_seguidores_ibfk_2`
-    FOREIGN KEY (`artista_id`)
-    REFERENCES `SpotifyClone`.`artista` (`artista_id`))
-ENGINE = InnoDB
-
-
-
--- -----------------------------------------------------
--- Table `SpotifyClone`.`reproducoes_por_usuario`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SpotifyClone`.`reproducoes_por_usuario` (
-  `usuario_id` INT NOT NULL,
-  `cancao_id` INT NOT NULL,
-  PRIMARY KEY (`usuario_id`, `cancao_id`),
-  INDEX `cancao_id` (`cancao_id` ASC) VISIBLE,
-  CONSTRAINT `reproducoes_por_usuario_ibfk_1`
-    FOREIGN KEY (`usuario_id`)
-    REFERENCES `SpotifyClone`.`usuario` (`usuario_id`),
-  CONSTRAINT `reproducoes_por_usuario_ibfk_2`
-    FOREIGN KEY (`cancao_id`)
-    REFERENCES `SpotifyClone`.`cancao` (`cancao_id`))
-ENGINE = InnoDB
+CREATE TABLE historico_de_seguidores(
+	usuario_id INT NOT NULL,
+    artista_id INT NOT NULL,
+    CONSTRAINT PRIMARY KEY (usuario_id, artista_id),
+    FOREIGN KEY (usuario_id) REFERENCES usuario(usuario_id),
+    FOREIGN KEY (artista_id) REFERENCES artista(artista_id)
+) engine=InnoDB;
 
 INSERT INTO plano(plano_nome, plano_valor)
 VALUES
