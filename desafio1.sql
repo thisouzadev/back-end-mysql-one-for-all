@@ -1,5 +1,5 @@
-DROP SCHEMA IF EXISTS SpotifyClone;
-CREATE SCHEMA SpotifyClone;
+DROP DATABASE IF EXISTS SpotifyClone;
+CREATE DATABASE SpotifyClone;
 USE SpotifyClone;
 
 CREATE TABLE plano(
